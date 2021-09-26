@@ -42,11 +42,15 @@ CREATE TABLE Покупатели (
 	название text NOT NULL
 );
 
+CREATE TABLE Даты_поставок (
+	дата date PRIMARY KEY
+);
+
 CREATE TABLE Поставки (
 	id_поставки integer PRIMARY KEY,
 	id_предприятия integer REFERENCES Предприятия,
 	id_покупателя integer REFERENCES Покупатели,
-	дата_поставки date NOT NULL
+	дата_поставки date REFERENCES Даты_поставок
 );
 
 CREATE TABLE Продукция (
@@ -63,7 +67,7 @@ CREATE TABLE Поставки_продукция (
 
 CREATE TABLE Срок_годности (
 	id_продукции integer REFERENCES Продукция,
-	дата_поставки date REFERENCES Поставки (дата_поставки),
+	дата_поставки date REFERENCES Даты_поставок,
 	срок_годности date NOT NULL,
 	PRIMARY KEY (id_продукции, дата_поставки)
 );
@@ -71,12 +75,12 @@ CREATE TABLE Срок_годности (
 CREATE TABLE Товары (
 	название text REFERENCES Продукция (название) PRIMARY KEY,
 	единица_измерения text NOT NULL,
-	закупочная_цена money CHECK (закупочная_цена > 0 AND NOT NULL)
+	закупочная_цена money NOT NULL
 );
 
 CREATE TABLE Цена_продажи (
 	id_предприятия integer REFERENCES Предприятия,
 	id_продукции integer REFERENCES Продукция,
-	цена_продаж money CHECK (цена_продаж > 0 AND NOT NULL),
+	цена_продаж money NOT NULL,
 	PRIMARY KEY (id_предприятия, id_продукции)
 );
