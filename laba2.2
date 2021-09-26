@@ -1,0 +1,82 @@
+-- Database: Shipment
+
+-- DROP DATABASE "Shipment";
+
+-- CREATE DATABASE "Shipment"
+--     WITH 
+--     OWNER = postgres
+--     ENCODING = 'UTF8'
+--     LC_COLLATE = 'ru_RU.UTF-8'
+--     LC_CTYPE = 'ru_RU.UTF-8'
+--     TABLESPACE = pg_default
+--     CONNECTION LIMIT = -1;
+
+CREATE TABLE Виды_деятельности (
+	id_деятельности text PRIMARY KEY
+);
+
+CREATE TABLE Предприятия (
+	id_предприятия integer PRIMARY KEY,
+	название text NOT NULL,
+	число_работников integer CHECK (число_работников > 0 AND NOT NULL),
+	основной_вид_деятельности text REFERENCES Виды_деятельности
+);
+
+CREATE TABLE Дополнительный_вид_деятельности (
+	id_предприятия integer REFERENCES Предприятия,
+	id_деятельности text REFERENCES Виды_деятельности,
+	PRIMARY KEY (id_предприятия, id_деятельности)
+);
+
+CREATE TABLE Работники (
+	id_работника integer PRIMARY KEY,
+	id_предприятия integer REFERENCES Предприятия,
+	фамилия text NOT NULL,
+	имя text NOT NULL,
+	отчество text,
+	должность text NOT NULL
+);
+
+CREATE TABLE Покупатели (
+	id_покупателя integer PRIMARY KEY,
+	название text NOT NULL
+);
+
+CREATE TABLE Поставки (
+	id_поставки integer PRIMARY KEY,
+	id_предприятия integer REFERENCES Предприятия,
+	id_покупателя integer REFERENCES Покупатели,
+	дата_поставки date NOT NULL
+);
+
+CREATE TABLE Продукция (
+	id_продукции integer PRIMARY KEY,
+	название text UNIQUE
+);
+
+CREATE TABLE Поставки_продукция (
+	id_поставки integer REFERENCES Поставки,
+	id_продукции integer REFERENCES Продукция,
+	объём integer CHECK (объём > 0 AND NOT NULL),
+	PRIMARY KEY (id_поставки, id_продукции)
+);
+
+CREATE TABLE Срок_годности (
+	id_продукции integer REFERENCES Продукция,
+	дата_поставки date REFERENCES Поставки (дата_поставки),
+	срок_годности date NOT NULL,
+	PRIMARY KEY (id_продукции, дата_поставки)
+);
+
+CREATE TABLE Товары (
+	название text REFERENCES Продукция (название) PRIMARY KEY,
+	единица_измерения text NOT NULL,
+	закупочная_цена money CHECK (закупочная_цена > 0 AND NOT NULL)
+);
+
+CREATE TABLE Цена_продажи (
+	id_предприятия integer REFERENCES Предприятия,
+	id_продукции integer REFERENCES Продукция,
+	цена_продаж money CHECK (цена_продаж > 0 AND NOT NULL),
+	PRIMARY KEY (id_предприятия, id_продукции)
+);
