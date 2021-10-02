@@ -1,14 +1,14 @@
 --Номера мест бизнес-класса
 SELECT s.aircraft_code, seat_no FROM aircrafts_data ad
 INNER JOIN seats s ON s.aircraft_code = ad.aircraft_code
-WHERE fare_conditions = 'Business'
+WHERE fare_conditions = 'Business';
 
 --Имена пассажиров, вылетающих из Сочи
 SELECT passenger_name, city FROM airports_data ad
 INNER JOIN flights f ON ad.airport_code = f.departure_airport
 INNER JOIN ticket_flights tf ON tf.flight_id = f.flight_id
 INNER JOIN tickets tics ON tf.ticket_no = tics.ticket_no
-WHERE ad.city->'en' = '"Sochi"'::jsonb
+WHERE ad.city->'en' = '"Sochi"'::jsonb;
 
 --Города, из которых вылетело >= 1000 пассажиров
 SELECT COUNT(passenger_name), city FROM airports_data ad
@@ -16,7 +16,7 @@ INNER JOIN flights f ON ad.airport_code = f.departure_airport
 INNER JOIN ticket_flights tf ON tf.flight_id = f.flight_id
 INNER JOIN tickets tics ON tf.ticket_no = tics.ticket_no
 GROUP BY ad.city
-HAVING COUNT(passenger_name) >= 1000
+HAVING COUNT(passenger_name) >= 1000;
 
 --У каких моделей самолётов билеты в среднем дороже
 SELECT model, ROUND(AVG(amount), 3) FROM aircrafts_data ac
@@ -24,14 +24,14 @@ INNER JOIN flights f ON ac.aircraft_code = f.aircraft_code
 INNER JOIN ticket_flights tf ON tf.flight_id = f.flight_id
 INNER JOIN tickets tics ON tf.ticket_no = tics.ticket_no
 GROUP BY model
-ORDER BY AVG(amount)
+ORDER BY AVG(amount);
 ---------------------------------------------------------
 
 --Количество мест различного класса, отсортированных по модели самолёта
 SELECT model, fare_conditions, COUNT(seat_no) FROM aircrafts_data ad
 INNER JOIN seats s ON s.aircraft_code = ad.aircraft_code
 GROUP BY model, fare_conditions
-ORDER BY model
+ORDER BY model;
 
 --Топ-10 пассажров, пролетевших больше всего
 CREATE EXTENSION cube;
@@ -44,12 +44,11 @@ JOIN airports_data a_d ON a_d.airport_code = f.departure_airport
 JOIN airports_data a_a ON a_a.airport_code = f.arrival_airport
 GROUP BY passenger_name
 ORDER BY km DESC
-LIMIT 10
+LIMIT 10;
 
 select * from aircrafts_data;
-select * from flights where status = 'Cancelled' order by scheduled_arrival
+select * from flights where status = 'Cancelled' order by scheduled_arrival;
 --для каждого аэропорта вывести код, название, город, количество отмененных рейсов в этот аэропорт за июль-август
-select * from 
 
 SELECT airport_code,
 	   airport_name::jsonb->>'ru' AS airport_name,
@@ -60,7 +59,7 @@ JOIN flights f ON ad.airport_code = f.arrival_airport
 WHERE scheduled_arrival >= '2017-07-01'::DATE
 AND scheduled_arrival <= '2017-08-31'::DATE
 GROUP BY airport_code
-ORDER BY count_cancelled DESC
+ORDER BY count_cancelled DESC;
 
 select count() from flights join aircrafts_data on flights.aircraft_code = aircrafts_data.aircfart_code
-group by flights
+group by flights;
