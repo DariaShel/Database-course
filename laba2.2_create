@@ -1,0 +1,84 @@
+CREATE TABLE Виды_деятельности (
+	id_деятельности char(15) PRIMARY KEY,
+	название varchar
+);
+
+CREATE TABLE Предприятия (
+	id_предприятия integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY (START WITH 1),
+	название varchar NOT NULL,
+	число_работников integer CONSTRAINT положительное_число_работников CHECK (число_работников > 0 AND NOT NULL),
+	основной_вид_деятельности char(15) CONSTRAINT удаление_деятельности REFERENCES Виды_деятельности ON DELETE SET NULL
+);
+
+CREATE TABLE Дополнительный_вид_деятельности (
+	id_предприятия integer CONSTRAINT удаление_предприятия1 REFERENCES Предприятия ON DELETE CASCADE,
+	id_деятельности char(15) CONSTRAINT удаление_допдеятельности REFERENCES Виды_деятельности ON DELETE CASCADE,
+	PRIMARY KEY (id_предприятия, id_деятельности)
+);
+
+CREATE TABLE Работники (
+	id_работника integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY (START WITH 1),
+	id_предприятия integer CONSTRAINT удаление_предприятия2 REFERENCES Предприятия ON DELETE CASCADE,
+	фамилия varchar(50) NOT NULL,
+	имя varchar(50) NOT NULL,
+	отчество varchar(50),
+	должность varchar NOT NULL
+);
+
+CREATE TABLE Покупатели (
+	id_покупателя integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY (START WITH 1),
+	название varchar NOT NULL
+);
+
+CREATE TABLE Даты_поставок (
+	дата date PRIMARY KEY
+);
+
+CREATE TABLE Поставки (
+	id_поставки integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY (START WITH 1),
+	id_предприятия integer CONSTRAINT удаление_предприятия3 REFERENCES Предприятия ON DELETE SET NULL,
+	id_покупателя integer CONSTRAINT удаление_покупателя REFERENCES Покупатели ON DELETE SET NULL,
+	дата_поставки date REFERENCES Даты_поставок
+);
+
+CREATE TABLE Товары (
+	название varchar PRIMARY KEY,
+	единица_измерения char(15) NOT NULL,
+	закупочная_цена money NOT NULL
+);
+
+CREATE TABLE Продукция (
+	id_продукции integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY (START WITH 1),
+	название varchar REFERENCES Товары
+);
+
+CREATE TABLE Поставки_продукция (
+	id_поставки integer CONSTRAINT удаление_поставки REFERENCES Поставки ON DELETE CASCADE,
+	id_продукции integer CONSTRAINT удаление_продукции1 REFERENCES Продукция ON DELETE SET NULL,
+	объём integer CONSTRAINT положительный_объём CHECK (объём > 0 AND NOT NULL),
+	PRIMARY KEY (id_поставки, id_продукции)
+);
+
+ALTER TABLE Поставки_продукция DROP CONSTRAINT удаление_продукции1;
+ALTER TABLE Поставки_продукция ADD CONSTRAINT удаление_продукции1
+FOREIGN KEY (id_продукции) REFERENCES Продукция ON DELETE CASCADE;
+
+CREATE TABLE Срок_годности (
+	id_продукции integer CONSTRAINT удаление_продукции2 REFERENCES Продукция ON DELETE CASCADE,
+	дата_поставки date CONSTRAINT удаление_даты REFERENCES Даты_поставок ON DELETE CASCADE,
+	срок_годности date NOT NULL,
+	PRIMARY KEY (id_продукции, дата_поставки)
+);
+
+CREATE TABLE Цена_продажи (
+	id_предприятия integer CONSTRAINT удаление_предприятия4 REFERENCES Предприятия ON DELETE CASCADE,
+	id_продукции integer CONSTRAINT удаление_продукции3 REFERENCES Продукция ON DELETE CASCADE,
+	цена_продаж money NOT NULL,
+	PRIMARY KEY (id_предприятия, id_продукции)
+);
+
+
+	
+	
+	
+	
