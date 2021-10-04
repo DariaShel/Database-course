@@ -1,3 +1,16 @@
+DROP TABLE Виды_деятельности CASCADE;
+DROP TABLE Предприятия CASCADE;
+DROP TABLE Дополнительный_вид_деятельности CASCADE;
+DROP TABLE Работники CASCADE;
+DROP TABLE Покупатели CASCADE;
+DROP TABLE Даты_поставок CASCADE;
+DROP TABLE Поставки CASCADE;
+DROP TABLE Товары CASCADE;
+DROP TABLE Продукция CASCADE;
+DROP TABLE Поставки_продукция CASCADE;
+DROP TABLE Срок_годности CASCADE;
+DROP TABLE Цена_продажи CASCADE;
+
 CREATE TABLE Виды_деятельности (
 	id_деятельности char(15) PRIMARY KEY,
 	название varchar
