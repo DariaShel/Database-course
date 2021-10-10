@@ -1,0 +1,17 @@
+CREATE OR REPLACE FUNCTION item() RETURNS TRIGGER AS
+$$
+BEGIN
+	INSERT INTO Продукция(название) VALUES (NEW.название);
+	
+	RETURN NEW;
+END;
+$$
+LANGUAGE plpgsql;
+DROP TRIGGER IF EXISTS tr_item ON Товары;
+CREATE TRIGGER tr_item AFTER INSERT ON Товары
+FOR EACH ROW EXECUTE PROCEDURE item();
+-- DELETE FROM Товары WHERE название = 'Планшет'; 
+INSERT INTO Товары (название, единица_измерения, закупочная_цена) VALUES
+	('Планшет', 'шт', 55000::money);
+SELECT * FROM Товары;
+SELECT * FROM Продукция;

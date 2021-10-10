@@ -1,0 +1,34 @@
+-- --READ UNCOMMITTED
+-- -- аномалия потерянных изменений
+-- BEGIN TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
+-- SELECT должность FROM Работники
+-- WHERE id_работника = 5;
+
+-- -- аномалия "грязных" чтений
+-- BEGIN TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
+-- UPDATE Товары SET закупочная_цена = закупочная_цена + 200::money
+-- WHERE название = 'Вата';
+-- COMMIT;
+
+--READ COMMITTED
+-- -- аномалия "грязных" чтений
+-- BEGIN TRANSACTION ISOLATION LEVEL READ COMMITTED;
+-- SELECT должность FROM Работники
+-- WHERE id_работника = 5;
+
+-- -- аномалия неповторяющихся чтений
+-- BEGIN TRANSACTION ISOLATION LEVEL READ COMMITTED;
+-- SELECT должность FROM Работники
+-- WHERE id_работника = 5;
+-- SELECT должность FROM Работники
+-- WHERE id_работника = 5;
+-- COMMIT;
+
+-- REPEATABLE READ
+-- аномалия неповторяющихся чтений
+BEGIN TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+SELECT должность FROM Работники
+WHERE id_работника = 5;
+SELECT должность FROM Работники
+WHERE id_работника = 5;
+COMMIT;
