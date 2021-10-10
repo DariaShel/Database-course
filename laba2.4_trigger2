@@ -1,0 +1,33 @@
+CREATE OR REPLACE FUNCTION update_emp_view() RETURNS TRIGGER AS $$
+    BEGIN
+        --
+        -- Выполнить требуемую операцию в emp и добавить в emp_audit строку,
+        -- отражающую эту операцию.
+        --
+        IF (TG_OP = 'DELETE') THEN
+            DELETE FROM emp WHERE empname = OLD.empname;
+            IF NOT FOUND THEN RETURN NULL; END IF;
+
+            OLD.last_updated = now();
+            INSERT INTO emp_audit VALUES('D', user, OLD.*);
+            RETURN OLD;
+        ELSIF (TG_OP = 'UPDATE') THEN
+            UPDATE emp SET salary = NEW.salary WHERE empname = OLD.empname;
+            IF NOT FOUND THEN RETURN NULL; END IF;
+
+            NEW.last_updated = now();
+            INSERT INTO emp_audit VALUES('U', user, NEW.*);
+            RETURN NEW;
+        ELSIF (TG_OP = 'INSERT') THEN
+            INSERT INTO emp VALUES(NEW.empname, NEW.salary);
+
+            NEW.last_updated = now();
+            INSERT INTO emp_audit VALUES('I', user, NEW.*);
+            RETURN NEW;
+        END IF;
+    END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER emp_audit
+INSTEAD OF INSERT OR UPDATE OR DELETE ON emp_view
+    FOR EACH ROW EXECUTE FUNCTION update_emp_view();

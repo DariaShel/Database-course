@@ -1,17 +1,36 @@
 CREATE OR REPLACE FUNCTION item() RETURNS TRIGGER AS
-$$
+$add_item$
 BEGIN
-	INSERT INTO Продукция(название) VALUES (NEW.название);
-	
-	RETURN NEW;
+	IF (TG_OP = 'DELETE') THEN
+		DELETE FROM Продукция WHERE название = OLD.название;
+		RETURN OLD;
+	ELSIF (TG_OP = 'INSERT') THEN
+		IF NEW.закупочная_цена IS NULL THEN
+			RAISE EXCEPTION 'Товар % не может иметь цену = null', NEW.название;
+		END IF;
+
+		IF NEW.единица_измерения IS NULL THEN
+			RAISE EXCEPTION 'Товар % должен иметь не нулевую единицу измерения', NEW.название;
+		END IF;
+		
+		INSERT INTO Продукция(название) VALUES (NEW.название);
+		RETURN NEW;
+	END IF;
 END;
-$$
+$add_item$
 LANGUAGE plpgsql;
+
 DROP TRIGGER IF EXISTS tr_item ON Товары;
-CREATE TRIGGER tr_item AFTER INSERT ON Товары
-FOR EACH ROW EXECUTE PROCEDURE item();
--- DELETE FROM Товары WHERE название = 'Планшет'; 
+CREATE TRIGGER tr_item AFTER INSERT OR DELETE ON Товары
+FOR EACH ROW EXECUTE PROCEDURE item(); 
 INSERT INTO Товары (название, единица_измерения, закупочная_цена) VALUES
 	('Планшет', 'шт', 55000::money);
+INSERT INTO Товары (название, единица_измерения) VALUES
+	('Жвачка', 'шт');
+INSERT INTO Товары (название, закупочная_цена) VALUES
+	('Наушники', 5000::money);
+INSERT INTO Товары (единица_измерения, закупочная_цена) VALUES
+	('шт', 190::money);
+-- DELETE FROM Товары WHERE название = 'Планшет';
 SELECT * FROM Товары;
 SELECT * FROM Продукция;

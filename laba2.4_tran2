@@ -1,13 +1,17 @@
 -- --READ UNCOMMITTED
 -- -- аномалия потерянных изменений
 -- BEGIN TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
--- SELECT должность FROM Работники
--- WHERE id_работника = 5;
+-- UPDATE Товары SET закупочная_цена = закупочная_цена + 200::money
+-- WHERE название = 'Вата';
+-- COMMIT;
+-- BEGIN;
+-- SELECT * FROM Товары;
+-- COMMIT;
 
 -- -- аномалия "грязных" чтений
 -- BEGIN TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
--- UPDATE Товары SET закупочная_цена = закупочная_цена + 200::money
--- WHERE название = 'Вата';
+-- SELECT должность FROM Работники
+-- WHERE id_работника = 5;
 -- COMMIT;
 
 --READ COMMITTED
@@ -15,6 +19,7 @@
 -- BEGIN TRANSACTION ISOLATION LEVEL READ COMMITTED;
 -- SELECT должность FROM Работники
 -- WHERE id_работника = 5;
+-- COMMIT;
 
 -- -- аномалия неповторяющихся чтений
 -- BEGIN TRANSACTION ISOLATION LEVEL READ COMMITTED;
@@ -26,9 +31,22 @@
 
 -- REPEATABLE READ
 -- аномалия неповторяющихся чтений
-BEGIN TRANSACTION ISOLATION LEVEL REPEATABLE READ;
-SELECT должность FROM Работники
-WHERE id_работника = 5;
-SELECT должность FROM Работники
-WHERE id_работника = 5;
-COMMIT;
+-- BEGIN TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+-- SELECT должность FROM Работники
+-- WHERE id_работника = 5;
+-- SELECT должность FROM Работники
+-- WHERE id_работника = 5;
+-- COMMIT;
+
+-- аномалия фантомов
+-- BEGIN TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+-- SELECT SUM(закупочная_цена) FROM Товары;
+-- SELECT SUM(закупочная_цена) FROM Товары;
+-- COMMIT;
+
+--SERIALIZABLE
+-- аномалия фантомов
+-- BEGIN TRANSACTION ISOLATION LEVEL SERIALIZABLE;
+-- SELECT SUM(закупочная_цена) FROM Товары;
+-- SELECT SUM(закупочная_цена) FROM Товары;
+-- COMMIT;

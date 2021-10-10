@@ -56,13 +56,13 @@ CREATE TABLE Поставки (
 
 CREATE TABLE Товары (
 	название varchar PRIMARY KEY,
-	единица_измерения char(15) NOT NULL,
-	закупочная_цена money NOT NULL
+	единица_измерения char(15), --NOT NULL,
+	закупочная_цена money --NOT NULL
 );
 
 CREATE TABLE Продукция (
 	id_продукции integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY (START WITH 1),
-	название varchar REFERENCES Товары
+	название varchar CONSTRAINT удаление_товара REFERENCES Товары ON DELETE CASCADE
 );
 
 CREATE TABLE Поставки_продукция (

@@ -1,34 +1,60 @@
 -- --READ UNCOMMITTED
 -- -- аномалия потерянных изменений
--- BEGIN TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
--- UPDATE Работники SET должность = 'middle' WHERE id_работника = 5;
--- -- UPDATE Работники SET должность = 'junior' WHERE id_работника = 5;
+-- BEGIN;
+-- SELECT * FROM Товары;
 -- COMMIT;
-
--- -- аномалия "грязных" чтений
 -- BEGIN TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
 -- UPDATE Товары SET закупочная_цена = закупочная_цена + 100::money
 -- WHERE название = 'Вата';
 -- COMMIT;
 
+
+-- -- аномалия "грязных" чтений
+-- BEGIN;
+-- SELECT должность FROM Работники
+-- WHERE id_работника = 5;
+-- COMMIT;
+-- BEGIN TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
+-- UPDATE Работники SET должность = 'middle' WHERE id_работника = 5;
+-- UPDATE Работники SET должность = 'junior' WHERE id_работника = 5;
+-- SELECT должность FROM Работники
+-- WHERE id_работника = 5;
+-- ROLLBACK;
+
 --READ COMMITTED
 -- -- аномалия "грязных" чтений
+-- BEGIN;
+-- SELECT должность FROM Работники
+-- WHERE id_работника = 5;
+-- COMMIT;
 -- BEGIN TRANSACTION ISOLATION LEVEL READ COMMITTED;
 -- UPDATE Работники SET должность = 'middle' WHERE id_работника = 5;
--- -- UPDATE Работники SET должность = 'junior' WHERE id_работника = 5;
+-- SELECT должность FROM Работники
+-- WHERE id_работника = 5;
 -- ROLLBACK;
 
 -- -- аномалия неповторяющихся чтений
 -- BEGIN TRANSACTION ISOLATION LEVEL READ COMMITTED;
 -- UPDATE Работники SET должность = 'middle' WHERE id_работника = 5;
--- -- UPDATE Работники SET должность = 'junior' WHERE id_работника = 5;
+-- UPDATE Работники SET должность = 'junior' WHERE id_работника = 5;
 -- COMMIT;
 
 -- REPEATABLE READ
 -- аномалия неповторяющихся чтений
-BEGIN TRANSACTION ISOLATION LEVEL REPEATABLE READ;
-UPDATE Работники SET должность = 'middle' WHERE id_работника = 5;
+-- BEGIN TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+-- UPDATE Работники SET должность = 'middle' WHERE id_работника = 5;
 -- UPDATE Работники SET должность = 'junior' WHERE id_работника = 5;
-COMMIT;
+-- COMMIT;
 
+-- аномалия фантомов
+-- BEGIN TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+-- INSERT INTO Товары (название, единица_измерения, закупочная_цена) VALUES
+-- 	('Планшет', 'шт', 55000::money);
+-- COMMIT;
 
+--SERIALIZABLE
+-- аномалия фантомов
+-- BEGIN TRANSACTION ISOLATION LEVEL SERIALIZABLE;
+-- INSERT INTO Товары (название, единица_измерения, закупочная_цена) VALUES
+-- 	('Очки', 'шт', 17000::money);
+-- COMMIT;
