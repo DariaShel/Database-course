@@ -21,7 +21,8 @@ $add_item$
 LANGUAGE plpgsql;
 
 DROP TRIGGER IF EXISTS tr_item ON Товары;
-CREATE TRIGGER tr_item AFTER INSERT OR DELETE ON Товары
+CREATE CONSTRAINT TRIGGER tr_item AFTER INSERT OR DELETE ON Товары
+DEFERRABLE INITIALLY DEFERRED
 FOR EACH ROW EXECUTE PROCEDURE item(); 
 INSERT INTO Товары (название, единица_измерения, закупочная_цена) VALUES
 	('Планшет', 'шт', 55000::money);

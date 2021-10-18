@@ -1,15 +1,15 @@
-DROP TABLE Виды_деятельности CASCADE;
-DROP TABLE Предприятия CASCADE;
-DROP TABLE Дополнительный_вид_деятельности CASCADE;
-DROP TABLE Работники CASCADE;
-DROP TABLE Покупатели CASCADE;
-DROP TABLE Даты_поставок CASCADE;
-DROP TABLE Поставки CASCADE;
-DROP TABLE Товары CASCADE;
-DROP TABLE Продукция CASCADE;
-DROP TABLE Поставки_продукция CASCADE;
-DROP TABLE Срок_годности CASCADE;
-DROP TABLE Цена_продажи CASCADE;
+DROP TABLE IF EXISTS Виды_деятельности CASCADE;
+DROP TABLE IF EXISTS Предприятия CASCADE;
+DROP TABLE IF EXISTS Дополнительный_вид_деятельности CASCADE;
+DROP TABLE IF EXISTS Работники CASCADE;
+DROP TABLE IF EXISTS Покупатели CASCADE;
+DROP TABLE IF EXISTS Даты_поставок CASCADE;
+DROP TABLE IF EXISTS Поставки CASCADE;
+DROP TABLE IF EXISTS Товары CASCADE;
+DROP TABLE IF EXISTS Продукция CASCADE;
+DROP TABLE IF EXISTS Поставки_продукция CASCADE;
+DROP TABLE IF EXISTS Срок_годности CASCADE;
+DROP TABLE IF EXISTS Цена_продажи CASCADE;
 
 CREATE TABLE Виды_деятельности (
 	id_деятельности char(15) PRIMARY KEY,
@@ -56,8 +56,8 @@ CREATE TABLE Поставки (
 
 CREATE TABLE Товары (
 	название varchar PRIMARY KEY,
-	единица_измерения char(15), --NOT NULL,
-	закупочная_цена money --NOT NULL
+	единица_измерения char(15) NOT NULL,
+	закупочная_цена money NOT NULL
 );
 
 CREATE TABLE Продукция (
