@@ -1,0 +1,38 @@
+COPY Company (name, number_emp, main_activity, additional_activities)
+FROM 'company.csv' WITH (FORMAT TEXT, DELIMITER '|');
+
+SELECT COUNT(*) FROM Company;
+
+COPY Employees (id_company, info)
+FROM 'employees.csv' WITH (FORMAT TEXT, DELIMITER '|');
+
+SELECT COUNT(*) FROM Employees;
+
+COPY Shipment (id_company, customer, items, date_shipment, cost)
+FROM 'shipment.csv' WITH (FORMAT TEXT, DELIMITER '|');
+
+SELECT COUNT(*) FROM Shipment;
+
+COPY Products (name, measure_unit, purchase_price)
+FROM 'products1.csv' WITH (FORMAT TEXT, DELIMITER '|');
+
+COPY Products (name, measure_unit, purchase_price)
+FROM 'products2.csv' WITH (FORMAT TEXT, DELIMITER '|');
+
+SELECT COUNT(*) FROM Products;
+
+COPY Shipment_products (id_shipment, id_products, volume, cost, expiration_date)
+FROM 'shipment_products1.csv' WITH (FORMAT TEXT, DELIMITER '|');
+
+COPY Shipment_products (id_shipment, id_products, volume, cost, expiration_date)
+FROM 'shipment_products2.csv' WITH (FORMAT TEXT, DELIMITER '|');
+
+SELECT COUNT(*) FROM Shipment_products;
+
+COPY Sale_price (id_products, id_company, sale_price)
+FROM 'sale_price1.csv' WITH (FORMAT TEXT, DELIMITER '|');
+
+COPY Sale_price (id_products, id_company, sale_price)
+FROM 'sale_price2.csv' WITH (FORMAT TEXT, DELIMITER '|');
+
+SELECT COUNT(*) FROM Sale_price;

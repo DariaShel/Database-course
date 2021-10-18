@@ -1,0 +1,58 @@
+DROP TABLE IF EXISTS Company CASCADE;
+DROP TABLE IF EXISTS Employees CASCADE;
+DROP TABLE IF EXISTS Shipment CASCADE;
+DROP TABLE IF EXISTS Products CASCADE;
+DROP TABLE IF EXISTS Shipment_products CASCADE;
+DROP TABLE IF EXISTS Sale_price CASCADE;
+
+CREATE TABLE Company (
+	id_company integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY (START WITH 1),
+	name varchar, -- NOT NULL,
+	number_emp integer, -- CONSTRAINT positive_number_emp CHECK (number_emp > 0 AND NOT NULL),
+	main_activity jsonb,
+	additional_activities jsonb
+);
+
+CREATE TABLE Employees (
+	id_emp integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY (START WITH 1),
+	id_company integer, -- CONSTRAINT del_comp1 REFERENCES Company ON DELETE CASCADE,
+	info jsonb -- NOT NULL
+);
+
+CREATE TABLE Shipment (
+	id_shipment integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY (START WITH 1),
+	id_company integer, -- CONSTRAINT del_comp2 REFERENCES Company ON DELETE SET NULL,
+	customer varchar, -- NOT NULL,
+	items text[], -- NOT NULL,
+	date_shipment date, -- NOT NULL,
+	cost money -- NOT NULL
+);
+
+CREATE TABLE Products (
+	id_products integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY (START WITH 1),
+	name varchar, -- NOT NULL,
+	measure_unit char(15), -- NOT NULL,
+	purchase_price money -- NOT NULL
+);
+
+CREATE TABLE Shipment_products (
+	id_shipment integer, -- CONSTRAINT del_shipment REFERENCES Shipment ON DELETE CASCADE,
+	id_products integer, -- CONSTRAINT del_prod1 REFERENCES Products ON DELETE CASCADE,
+	volume integer, -- CONSTRAINT positive_volume CHECK (volume > 0 AND NOT NULL),
+	cost money, -- NOT NULL,
+	expiration_date date, -- NOT NULL,
+	PRIMARY KEY (id_shipment, id_products)
+);
+
+CREATE TABLE Sale_price (
+	id_products integer, -- CONSTRAINT del_prod2 REFERENCES Products ON DELETE CASCADE,
+	id_company integer, -- CONSTRAINT del_comp3 REFERENCES Company ON DELETE CASCADE,
+	sale_price money, -- NOT NULL,
+	PRIMARY KEY (id_company, id_products)
+);
+
+
+	
+	
+	
+	
