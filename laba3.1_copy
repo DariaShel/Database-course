@@ -1,38 +1,100 @@
-COPY Company (name, number_emp, main_activity, additional_activities)
-FROM 'company.csv' WITH (FORMAT TEXT, DELIMITER '|');
+-- COPY Company (id_company, name, number_emp, main_activity, additional_activities, delivered_goods)
+-- FROM 'company.csv' WITH (FORMAT TEXT, DELIMITER '|');
 
-SELECT COUNT(*) FROM Company;
+-- SELECT COUNT(*) FROM Company;
 
-COPY Employees (id_company, info)
-FROM 'employees.csv' WITH (FORMAT TEXT, DELIMITER '|');
+-- COPY Products (id_company, name_company, name_product, product_description)
+-- FROM 'products.csv' WITH (FORMAT TEXT, DELIMITER '|');
 
-SELECT COUNT(*) FROM Employees;
+-- SELECT COUNT(*) FROM Products;
 
-COPY Shipment (id_company, customer, items, date_shipment, cost)
-FROM 'shipment.csv' WITH (FORMAT TEXT, DELIMITER '|');
+-- COPY Shipment (id_company, name_company, customer, products, date_shipment, cost)
+-- FROM 'shipment1.csv' WITH (FORMAT TEXT, DELIMITER '|');
 
-SELECT COUNT(*) FROM Shipment;
+-- COPY Shipment (id_company, name_company, customer, products, date_shipment, cost)
+-- FROM 'shipment2.csv' WITH (FORMAT TEXT, DELIMITER '|');
 
-COPY Products (name, measure_unit, purchase_price)
-FROM 'products1.csv' WITH (FORMAT TEXT, DELIMITER '|');
+-- COPY Shipment (id_company, name_company, customer, products, date_shipment, cost)
+-- FROM 'shipment3.csv' WITH (FORMAT TEXT, DELIMITER '|');
 
-COPY Products (name, measure_unit, purchase_price)
-FROM 'products2.csv' WITH (FORMAT TEXT, DELIMITER '|');
+-- COPY Shipment (id_company, name_company, customer, products, date_shipment, cost)
+-- FROM 'shipment4.csv' WITH (FORMAT TEXT, DELIMITER '|');
 
-SELECT COUNT(*) FROM Products;
+-- COPY Shipment (id_company, name_company, customer, products, date_shipment, cost)
+-- FROM 'shipment5.csv' WITH (FORMAT TEXT, DELIMITER '|');
 
-COPY Shipment_products (id_shipment, id_products, volume, cost, expiration_date)
-FROM 'shipment_products1.csv' WITH (FORMAT TEXT, DELIMITER '|');
+-- COPY Shipment (id_company, name_company, customer, products, date_shipment, cost)
+-- FROM 'shipment6.csv' WITH (FORMAT TEXT, DELIMITER '|');
 
-COPY Shipment_products (id_shipment, id_products, volume, cost, expiration_date)
-FROM 'shipment_products2.csv' WITH (FORMAT TEXT, DELIMITER '|');
+-- COPY Shipment (id_company, name_company, customer, products, date_shipment, cost)
+-- FROM 'shipment7.csv' WITH (FORMAT TEXT, DELIMITER '|');
 
-SELECT COUNT(*) FROM Shipment_products;
+-- COPY Shipment (id_company, name_company, customer, products, date_shipment, cost)
+-- FROM 'shipment8.csv' WITH (FORMAT TEXT, DELIMITER '|');
 
-COPY Sale_price (id_products, id_company, sale_price)
-FROM 'sale_price1.csv' WITH (FORMAT TEXT, DELIMITER '|');
+-- COPY Shipment (id_company, name_company, customer, products, date_shipment, cost)
+-- FROM 'shipment9.csv' WITH (FORMAT TEXT, DELIMITER '|');
 
-COPY Sale_price (id_products, id_company, sale_price)
-FROM 'sale_price2.csv' WITH (FORMAT TEXT, DELIMITER '|');
+-- COPY Shipment (id_company, name_company, customer, products, date_shipment, cost)
+-- FROM 'shipment10.csv' WITH (FORMAT TEXT, DELIMITER '|');
 
-SELECT COUNT(*) FROM Sale_price;
+-- COPY Shipment (id_company, name_company, customer, products, date_shipment, cost)
+-- FROM 'shipment11.csv' WITH (FORMAT TEXT, DELIMITER '|');
+
+-- COPY Shipment (id_company, name_company, customer, products, date_shipment, cost)
+-- FROM 'shipment12.csv' WITH (FORMAT TEXT, DELIMITER '|');
+
+-- COPY Shipment (id_company, name_company, customer, products, date_shipment, cost)
+-- FROM 'shipment13.csv' WITH (FORMAT TEXT, DELIMITER '|');
+
+-- COPY Shipment (id_company, name_company, customer, products, date_shipment, cost)
+-- FROM 'shipment14.csv' WITH (FORMAT TEXT, DELIMITER '|');
+
+-- COPY Shipment (id_company, name_company, customer, products, date_shipment, cost)
+-- FROM 'shipment15.csv' WITH (FORMAT TEXT, DELIMITER '|');
+
+-- COPY Shipment (id_company, name_company, customer, products, date_shipment, cost)
+-- FROM 'shipment16.csv' WITH (FORMAT TEXT, DELIMITER '|');
+
+-- COPY Shipment (id_company, name_company, customer, products, date_shipment, cost)
+-- FROM 'shipment17.csv' WITH (FORMAT TEXT, DELIMITER '|');
+
+-- COPY Shipment (id_company, name_company, customer, products, date_shipment, cost)
+-- FROM 'shipment18.csv' WITH (FORMAT TEXT, DELIMITER '|');
+
+-- COPY Shipment (id_company, name_company, customer, products, date_shipment, cost)
+-- FROM 'shipment19.csv' WITH (FORMAT TEXT, DELIMITER '|');
+
+-- COPY Shipment (id_company, name_company, customer, products, date_shipment, cost)
+-- FROM 'shipment20.csv' WITH (FORMAT TEXT, DELIMITER '|');
+
+-- SELECT COUNT(*) FROM Shipment;
+
+-- ANALYZE;
+
+
+-- ALTER TABLE Company ALTER COLUMN name SET NOT NULL;
+-- ALTER TABLE Company ALTER COLUMN number_emp SET NOT NULL;
+-- ALTER TABLE Company ALTER COLUMN main_activity SET NOT NULL;
+-- ALTER TABLE Company ALTER COLUMN delivered_goods SET NOT NULL;
+
+-- ALTER TABLE Products ALTER COLUMN name_company SET NOT NULL;
+-- ALTER TABLE Products ALTER COLUMN name_product SET NOT NULL;
+
+-- ALTER TABLE Shipment ALTER COLUMN name_company SET NOT NULL;
+-- ALTER TABLE Shipment ALTER COLUMN customer SET NOT NULL;
+-- ALTER TABLE Shipment ALTER COLUMN products SET NOT NULL;
+-- ALTER TABLE Shipment ALTER COLUMN date_shipment SET NOT NULL;
+-- ALTER TABLE Shipment ALTER COLUMN cost SET NOT NULL;
+
+-- ALTER TABLE Company ADD PRIMARY KEY (id_company);
+-- ALTER TABLE Products ADD CONSTRAINT del_comp1 FOREIGN KEY (id_company) REFERENCES Company (id_company) ON DELETE CASCADE;
+-- ALTER TABLE Shipment ADD CONSTRAINT del_comp2 FOREIGN KEY (id_company) REFERENCES Company (id_company) ON DELETE CASCADE;
+
+-- SELECT name_company, x.cost, x.name, x.price, x.quantity, date_shipment
+-- FROM Shipment, jsonb_to_recordset(Shipment.products::jsonb)
+-- AS x(cost money, name varchar, price money, quantity integer)
+-- WHERE name_company = 'Company_2';
+
+-- SELECT cost FROM Shipment WHERE id_shipment = 1;
+-- SELECT SUM(cost) FROM Shipment_products WHERE id_shipment = 1 GROUP BY id_shipment = 1;
