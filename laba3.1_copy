@@ -91,10 +91,11 @@
 -- ALTER TABLE Products ADD CONSTRAINT del_comp1 FOREIGN KEY (id_company) REFERENCES Company (id_company) ON DELETE CASCADE;
 -- ALTER TABLE Shipment ADD CONSTRAINT del_comp2 FOREIGN KEY (id_company) REFERENCES Company (id_company) ON DELETE CASCADE;
 
--- SELECT name_company, x.cost, x.name, x.price, x.quantity, date_shipment
--- FROM Shipment, jsonb_to_recordset(Shipment.products::jsonb)
--- AS x(cost money, name varchar, price money, quantity integer)
--- WHERE name_company = 'Company_2';
+SELECT * FROM Company LIMIT 10;
+SELECT * FROM Products LIMIT 10;
+SELECT * FROM Shipment LIMIT 10;
 
--- SELECT cost FROM Shipment WHERE id_shipment = 1;
--- SELECT SUM(cost) FROM Shipment_products WHERE id_shipment = 1 GROUP BY id_shipment = 1;
+SELECT name_company, x.cost, x.name, x.price, x.quantity, date_shipment
+FROM Shipment, jsonb_to_recordset(Shipment.products::jsonb)
+AS x(cost money, name varchar, price money, quantity integer)
+WHERE name_company = 'Company_2';
