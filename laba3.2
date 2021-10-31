@@ -1,0 +1,174 @@
+SET ROLE postgres;
+
+DROP OWNED BY test;
+DROP ROLE test;
+DROP OWNED BY test1;
+DROP ROLE test1;
+
+SELECT rolname FROM pg_roles;
+
+CREATE USER test INHERIT;
+GRANT SELECT, UPDATE, INSERT ON Company TO test;
+GRANT SELECT ON Products TO test;
+GRANT UPDATE(product_description) ON Products TO test;
+GRANT SELECT ON Shipment TO test;
+
+SELECT rolname FROM pg_roles;
+
+SET ROLE test;
+
+--проверка, что у test есть доступ на SELECT, UPDATE, INSERT к таблице Company
+SELECT * FROM Company
+LIMIT 1000;
+
+BEGIN;
+UPDATE Company SET name = 'Company_1_1'
+WHERE name = 'Company_1';
+ROLLBACK;
+
+BEGIN;
+INSERT INTO Company (id_company, name, number_emp, main_activity, additional_activities, delivered_goods) VALUES
+	(1000001,
+	'Company_1000001',
+	100,
+	'{"name":"Some name", "number":"77.1.4"}'::jsonb,
+	'[{"name":"Some name", "number":"77.1.1"},
+	 {"name":"Some name", "number":"77.1.2"},
+	 {"name":"Some name", "number":"77.1.3"}]'::jsonb,
+	'[{"name":"face cream", "price":300},
+	 {"name":"hand cream", "price":200},
+	 {"name":"body cream", "price":500}]'::jsonb);
+ROLLBACK;
+
+--проверка, что у test есть доступ на SELECT и UPDATE
+--столбца product_description в таблице Products и нет возможности INSERT
+SELECT * FROM Products
+LIMIT 1000;
+
+BEGIN;
+UPDATE Products
+SET product_description = 'High-quality and reliable doors'
+WHERE name_product = 'doors' and name_company = 'Company342';
+ROLLBACK;
+
+BEGIN;
+INSERT INTO Products (id_company, name_company, name_product, product_description) VALUES
+	(1,
+	'Company1',
+	'face cream',
+	'Moisturizing cream for night use');
+ROLLBACK;
+
+--проверка, что у test есть доступ на SELECT в таблице Shipment
+--и нет возможности INSERT, UPDATE
+SELECT * FROM Shipment
+LIMIT 1000;
+
+BEGIN;
+UPDATE Shipment SET customer = 'Customer_1'
+WHERE customer = 'Customer_9105';
+ROLLBACK;
+
+BEGIN;
+INSERT INTO Shipment (id_company, name_company, customer, products, date_shipment, cost) VALUES
+	(1,
+	'Company_1',
+	 'Customer_1',
+	'[{"name":"item1", "price":100, "quantity":10, "cost":1000},
+	 {"name":"item2", "price":100, "quantity":10, "cost":1000},
+	 {"name":"item3", "price":100, "quantity":10, "cost":1000}]'::jsonb,
+	 '2021-10-31'::DATE,
+	3000::money);
+ROLLBACK;
+
+--представления
+SET ROLE postgres;
+
+DROP VIEW IF EXISTS Company_products;
+DROP VIEW IF EXISTS Expensive_supplies;
+
+CREATE OR REPLACE VIEW Company_products AS
+	SELECT c.name, p.name_product, p.product_description, x.price
+	FROM Company c
+	JOIN Products p USING (id_company)
+	JOIN jsonb_to_recordset(c.delivered_goods::jsonb)
+	AS x(name varchar, price money)
+	ON x.name = p.name_product;
+
+DROP VIEW IF EXISTS upd_company_products;
+DROP VIEW IF EXISTS insert_company_products;
+
+CREATE RULE upd_company_products AS ON UPDATE TO Company_products DO INSTEAD (
+	UPDATE Company SET name=NEW.name;
+	UPDATE Products SET name_product=NEW.name_product, product_description=NEW.product_description;);
+	
+CREATE RULE insert_company_products AS ON INSERT TO Company_products DO INSTEAD (
+	INSERT INTO Company (id_company, name, number_emp, main_activity, additional_activities, delivered_goods) VALUES
+		(1000001,
+		 NEW.name,
+		 100,
+		'{"name":"Some name", "number":"Some number"}'::jsonb,
+		'[{"name":"Some name", "number":"Some number"},
+	 	{"name":"Some name", "number":"Some number"},
+	 	{"name":"Some name", "number":"Some number"}]'::jsonb,
+		'[{"name":"item1", "price":100},
+	 	{"name":"item2", "price":100},
+	 	{"name":"item3", "price":100}]'::jsonb);
+	INSERT INTO Products (id_company, name_company, name_product, product_description) VALUES
+		(1,
+		 NEW.name,
+		 NEW.name_product,
+		 NEW.product_description);
+	);
+
+CREATE OR REPLACE VIEW Expensive_supplies AS
+	SELECT name_company, customer, date_shipment, cost
+	FROM Shipment
+	WHERE cost > 5000000::money;
+	
+GRANT SELECT ON Expensive_supplies TO test;
+
+CREATE ROLE test1;
+GRANT SELECT ON Company_products TO test1;
+GRANT UPDATE (product_description) ON Company_products TO test1;
+GRANT test1 TO test;
+
+SELECT rolname FROM pg_roles;
+
+SET ROLE test;
+
+--проверка, что у test есть доступ на SELECT в представлении Expensive_supplies
+--и нет возможности UPDATE, INSERT
+SELECT * FROM Expensive_supplies
+LIMIT 1000;
+
+BEGIN;
+UPDATE Expensive_supplies SET cost = 5000::money
+WHERE cost > 6000000::money;
+ROLLBACK;
+
+BEGIN;
+INSERT INTO Expensive_supplies (name_company, customer, date_shipment, cost) VALUES
+	('Company_1', 'Customer_1', '2021-10-31'::DATE, 7000);
+ROLLBACK;
+
+--проверка, что у test есть доступ на UPDATE
+--столбца product_description в таблице Company_products и нет возможности INSERT
+SELECT * FROM Company_products
+LIMIT 1000;
+
+BEGIN;
+UPDATE Company_products
+SET product_description = 'High-quality and inexpensive toys that every child will be happy with!'
+WHERE name_product = 'toys';
+ROLLBACK;
+
+BEGIN;
+INSERT INTO Company_products (name, name_product, product_description, price) VALUES
+	('Company1',
+	 'face cream',
+	 'Moisturizing cream for night use',
+	 300::money);
+ROLLBACK;
+
+
