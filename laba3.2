@@ -95,11 +95,10 @@ CREATE OR REPLACE VIEW Company_products AS
 	AS x(name varchar, price money)
 	ON x.name = p.name_product;
 
-DROP VIEW IF EXISTS upd_company_products;
-DROP VIEW IF EXISTS insert_company_products;
+DROP RULE IF EXISTS upd_company_products;
+DROP RULE IF EXISTS insert_company_products;
 
 CREATE RULE upd_company_products AS ON UPDATE TO Company_products DO INSTEAD (
-	UPDATE Company SET name=NEW.name;
 	UPDATE Products SET name_product=NEW.name_product, product_description=NEW.product_description;);
 	
 CREATE RULE insert_company_products AS ON INSERT TO Company_products DO INSTEAD (
@@ -170,5 +169,28 @@ INSERT INTO Company_products (name, name_product, product_description, price) VA
 	 'Moisturizing cream for night use',
 	 300::money);
 ROLLBACK;
+
+---------------------------------------------------------
+SET ROLE postgres;
+
+DROP OWNED BY test2;
+DROP ROLE test2;
+
+CREATE USER test2;
+-- GRANT SELECT (cost) ON Shipment TO test2;
+GRANT UPDATE (cost) ON Shipment TO test2;
+
+SET ROLE test2;
+
+BEGIN;
+UPDATE Shipment SET cost = 1::money;
+ROLLBACK;
+
+--добавить в SELECT доступ к столбцу id_company
+BEGIN;
+UPDATE Shipment SET cost = cost + 1::money
+WHERE id_company = 1;
+ROLLBACK;
+
 
 
