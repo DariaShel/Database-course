@@ -1,0 +1,122 @@
+--функция возвращает имя компании, товары, количество, цену, стоимость, полную стоимость поставки
+DROP FUNCTION IF EXISTS show_table;
+
+CREATE OR REPLACE FUNCTION show_table(INOUT name_company varchar,
+									  OUT product_name varchar,
+									  OUT price money,
+									  OUT quantity int,
+									  OUT cost money,
+									  OUT total_cost money)
+RETURNS SETOF record AS $$
+DECLARE
+	curs CURSOR FOR SELECT s.name_company, x.name, x.price, x.quantity, x.cost AS cost, s.cost AS total_cost
+				FROM Shipment s, jsonb_to_recordset(s.products::jsonb)
+				AS x(cost money, name varchar, price money, quantity integer)
+				WHERE s.name_company = $1;
+BEGIN
+	FOR line in curs LOOP
+		RETURN QUERY SELECT line.name_company, line.name, line.price, line.quantity, line.cost, line.total_cost;
+	END LOOP;
+END;
+$$ LANGUAGE plpgsql;
+
+--функция, где возвращается сумма, заработанная компанией на каждом товаре поотдельности
+--за все поставки, и название товара (тут будет for, курсоры), возвращает табицу
+DROP FUNCTION IF EXISTS gain;
+
+CREATE OR REPLACE FUNCTION gain(INOUT name varchar, OUT product varchar, OUT gain money) RETURNS SETOF record AS $$
+DECLARE
+	curs CURSOR FOR SELECT x.name, SUM(x.cost) AS sum_cost
+				FROM Shipment, jsonb_to_recordset(Shipment.products::jsonb)
+				AS x(cost money, name varchar, price money, quantity integer)
+				WHERE name_company = $1
+				GROUP BY x.name;
+BEGIN
+	FOR line in curs LOOP
+		RETURN QUERY SELECT line.name, line.sum_cost;
+	END LOOP;
+END;
+$$ LANGUAGE plpgsql;
+
+--уменьшить объем поставки, и соответственно стоимость отдельных товаров и общую стоимость поставки
+--(if, else - проверка на положительное значение объема + исключение)
+DROP FUNCTION IF EXISTS low_quantity;
+
+CREATE OR REPLACE FUNCTION low_quantity(queries int, x int, name_company varchar) RETURNS void AS $$
+DECLARE
+	line record;
+	new_total_cost money;
+	new_cost integer;
+	new_quantity integer;
+	curs CURSOR FOR SELECT s.products, s.cost FROM Shipment s
+				WHERE s.name_company = $3
+				FOR UPDATE;
+BEGIN
+	IF queries < 0 OR x < 0 THEN
+		RAISE EXCEPTION 'Number of queries and x should be positive';
+	ELSE
+		OPEN curs;
+		FOR i IN 1..queries LOOP
+			FETCH curs INTO line;
+			IF NOT FOUND THEN 
+				RAISE EXCEPTION 'n is more than the % supply quantity', $3;
+				RETURN;
+			END IF;
+			new_total_cost = 0;
+			FOR j IN 0..jsonb_array_length(line.products) - 1 LOOP
+				IF (line.products::jsonb->j->>'quantity')::integer > x THEN
+					new_quantity = (line.products::jsonb->j->>'quantity')::integer - x;
+					new_cost = new_quantity * (line.products::jsonb->j->>'price')::integer;
+					new_total_cost = new_total_cost + new_cost::money;
+					UPDATE Shipment SET products = jsonb_set(products, ('{' || j || ',quantity}')::text[], new_quantity::text::jsonb) WHERE CURRENT OF curs;
+					UPDATE Shipment SET products = jsonb_set(products, ('{' || j || ',cost}')::text[], new_cost::text::jsonb) WHERE CURRENT OF curs;
+				ELSE
+					new_total_cost = new_total_cost + (line.products::jsonb->j->>'cost')::money;
+				END IF;
+			END LOOP;
+			IF line.cost <> new_total_cost THEN
+				UPDATE Shipment SET cost = new_total_cost WHERE CURRENT OF curs;
+			END IF;
+		END LOOP;
+		CLOSE curs;
+	END IF;
+END;
+$$ LANGUAGE plpgsql;
+
+SELECT * FROM show_table('Company_3');
+SELECT * FROM gain('Company_3');
+SELECT * FROM low_quantity(10, 100, 'Company_3');
+SELECT * FROM show_table('Company_3');
+SELECT * FROM gain('Company_3');
+
+-- CREATE OR REPLACE FUNCTION new_company(id int,
+-- 									   name varchar,
+-- 									   emp int,
+-- 									   main_activity jsonb,
+-- 									   additional_activity jsonb,
+-- 									   delivered_goods jsonb,
+-- 									   product_description jsonb,
+-- 									   OUT c Company,
+-- 									   OUT p Products)
+-- AS $$
+-- BEGIN
+--     INSERT INTO Company VALUES (id, name, emp, main_activity, additional_activity, delivered_goods) RETURNING * INTO c;
+-- 	FOR i IN 0..jsonb_array_length(delivered_goods) - 1 LOOP
+-- 		INSERT INTO Products VALUES (id, name, delivered_goods::jsonb->i->>'name', product_description::jsonb->i) RETURNING * INTO p;
+-- 	END LOOP;
+-- END;
+-- $$ LANGUAGE plpgsql;
+
+-- SELECT * FROM new_company(1000003,
+-- 				  'Company_1000003',
+-- 				  100,
+-- 				  '{"name":"Some name", "number":"77.1.4"}'::jsonb,
+-- 				  '[{"name":"Some name", "number":"77.1.1"},
+-- 				  {"name":"Some name", "number":"77.1.2"},
+-- 				  {"name":"Some name", "number":"77.1.3"}]'::jsonb,
+-- 				  '[{"name":"face cream", "price":300},
+-- 				  {"name":"hand cream", "price":200},
+-- 				  {"name":"body cream", "price":500}]'::jsonb,
+-- 				 '["Moisturizing cream for night use",
+-- 				   "Moisturizing cream for night use",
+-- 				   "Moisturizing cream for night use"]'::jsonb);
