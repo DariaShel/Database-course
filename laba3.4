@@ -1,0 +1,24 @@
+EXPLAIN ANALYZE
+SELECT * FROM Shipment
+WHERE name_company = 'Company_1' AND cost > 5000000::money;
+
+EXPLAIN ANALYZE
+SELECT c.name, p.name_product, p.product_description, x.price
+FROM Company c
+JOIN Products p USING (id_company)
+JOIN jsonb_to_recordset(c.delivered_goods::jsonb)
+AS x(name varchar, price money)
+ON x.name = p.name_product
+WHERE c.name = 'Company_1' AND x.price > 1000::money;
+
+CREATE INDEX index_name_shipment ON Shipment USING HASH (name_company);
+CREATE INDEX index_cost_shipment ON Shipment (cost);
+CREATE INDEX index_name_company ON Company USING HASH (name);
+CREATE INDEX index_id_products ON Products (id_company) INCLUDE (name_product, product_description);
+CREATE INDEX index_price_company ON Company (delivered_goods);
+
+EXPLAIN ANALYZE
+SELECT * FROM Products
+WHERE to_tsvector('english', product_description) @@ to_tsquery('english', 'pants');
+
+CREATE INDEX index_description_producs ON Products USING GIN (to_tsvector('english', product_description));
