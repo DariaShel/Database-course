@@ -89,34 +89,3 @@ SELECT * FROM low_quantity(10, 100, 'Company_3');
 SELECT * FROM show_table('Company_3');
 SELECT * FROM gain('Company_3');
 
--- CREATE OR REPLACE FUNCTION new_company(id int,
--- 									   name varchar,
--- 									   emp int,
--- 									   main_activity jsonb,
--- 									   additional_activity jsonb,
--- 									   delivered_goods jsonb,
--- 									   product_description jsonb,
--- 									   OUT c Company,
--- 									   OUT p Products)
--- AS $$
--- BEGIN
---     INSERT INTO Company VALUES (id, name, emp, main_activity, additional_activity, delivered_goods) RETURNING * INTO c;
--- 	FOR i IN 0..jsonb_array_length(delivered_goods) - 1 LOOP
--- 		INSERT INTO Products VALUES (id, name, delivered_goods::jsonb->i->>'name', product_description::jsonb->i) RETURNING * INTO p;
--- 	END LOOP;
--- END;
--- $$ LANGUAGE plpgsql;
-
--- SELECT * FROM new_company(1000003,
--- 				  'Company_1000003',
--- 				  100,
--- 				  '{"name":"Some name", "number":"77.1.4"}'::jsonb,
--- 				  '[{"name":"Some name", "number":"77.1.1"},
--- 				  {"name":"Some name", "number":"77.1.2"},
--- 				  {"name":"Some name", "number":"77.1.3"}]'::jsonb,
--- 				  '[{"name":"face cream", "price":300},
--- 				  {"name":"hand cream", "price":200},
--- 				  {"name":"body cream", "price":500}]'::jsonb,
--- 				 '["Moisturizing cream for night use",
--- 				   "Moisturizing cream for night use",
--- 				   "Moisturizing cream for night use"]'::jsonb);
