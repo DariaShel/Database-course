@@ -24,9 +24,9 @@ $$ LANGUAGE plpgsql;
 --за все поставки, и название товара (тут будет for, курсоры), возвращает табицу
 DROP FUNCTION IF EXISTS gain;
 
-CREATE OR REPLACE FUNCTION gain(INOUT name varchar, OUT product varchar, OUT gain money) RETURNS SETOF record AS $$
+CREATE OR REPLACE FUNCTION gain(name varchar, OUT product varchar, OUT gain money) RETURNS SETOF record AS $$
 DECLARE
-	curs CURSOR FOR SELECT x.name, SUM(x.cost) AS sum_cost
+	curs CURSOR FOR SELECT x.name, SUM(x.cost::money) AS sum_cost
 				FROM Shipment, jsonb_to_recordset(Shipment.products::jsonb)
 				AS x(cost money, name varchar, price money, quantity integer)
 				WHERE name_company = $1
@@ -83,9 +83,9 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-SELECT * FROM show_table('Company_3');
-SELECT * FROM gain('Company_3');
-SELECT * FROM low_quantity(10, 100, 'Company_3');
-SELECT * FROM show_table('Company_3');
-SELECT * FROM gain('Company_3');
+SELECT * FROM show_table('Company_10') ORDER BY quantity DESC;
+SELECT * FROM gain('Company_10');
+SELECT * FROM low_quantity(100, 100, 'Company_10');
+SELECT * FROM show_table('Company_10') ORDER BY quantity DESC;
+SELECT * FROM gain('Company_10');
 
