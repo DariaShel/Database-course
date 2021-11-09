@@ -19,6 +19,159 @@ CREATE INDEX index_price_company ON Company (delivered_goods);
 
 EXPLAIN ANALYZE
 SELECT * FROM Products
-WHERE to_tsvector('english', product_description) @@ to_tsquery('english', 'pants');
+WHERE to_tsvector('english', product_description) @@ to_tsquery('english', 'pants & type');
 
 CREATE INDEX index_description_producs ON Products USING GIN (to_tsvector('english', product_description));
+
+EXPLAIN ANALYZE
+SELECT * FROM Shipment
+WHERE date_shipment > '2021-01-01'::DATE;
+
+CREATE TABLE Shipment_section (
+	id_company integer CONSTRAINT del_comp2 REFERENCES Company ON DELETE CASCADE,
+	name_company varchar NOT NULL,
+	customer varchar NOT NULL,
+	products jsonb NOT NULL,
+	date_shipment date NOT NULL,
+	cost money NOT NULL
+) PARTITION BY RANGE (date_shipment);
+
+CREATE TABLE Shipment2000 PARTITION OF Shipment_section
+    FOR VALUES FROM ('2000-01-01') TO ('2001-01-01');
+
+CREATE TABLE Shipment2001 PARTITION OF Shipment_section
+    FOR VALUES FROM ('2001-01-01') TO ('2002-01-01');
+
+CREATE TABLE Shipment2002 PARTITION OF Shipment_section
+    FOR VALUES FROM ('2002-01-01') TO ('2003-01-01');
+	
+CREATE TABLE Shipment2003 PARTITION OF Shipment_section
+    FOR VALUES FROM ('2003-01-01') TO ('2004-01-01');
+	
+CREATE TABLE Shipment2004 PARTITION OF Shipment_section
+    FOR VALUES FROM ('2004-01-01') TO ('2005-01-01');
+	
+CREATE TABLE Shipment2005 PARTITION OF Shipment_section
+    FOR VALUES FROM ('2005-01-01') TO ('2006-01-01');
+	
+CREATE TABLE Shipment2006 PARTITION OF Shipment_section
+    FOR VALUES FROM ('2006-01-01') TO ('2007-01-01');
+	
+CREATE TABLE Shipment2007 PARTITION OF Shipment_section
+    FOR VALUES FROM ('2007-01-01') TO ('2008-01-01');
+	
+CREATE TABLE Shipment2008 PARTITION OF Shipment_section
+    FOR VALUES FROM ('2008-01-01') TO ('2009-01-01');
+	
+CREATE TABLE Shipment2009 PARTITION OF Shipment_section
+    FOR VALUES FROM ('2009-01-01') TO ('2010-01-01');
+	
+CREATE TABLE Shipment2010 PARTITION OF Shipment_section
+    FOR VALUES FROM ('2010-01-01') TO ('2011-01-01');
+	
+CREATE TABLE Shipment2011 PARTITION OF Shipment_section
+    FOR VALUES FROM ('2011-01-01') TO ('2012-01-01');
+	
+CREATE TABLE Shipment2012 PARTITION OF Shipment_section
+    FOR VALUES FROM ('2012-01-01') TO ('2013-01-01');
+	
+CREATE TABLE Shipment2013 PARTITION OF Shipment_section
+    FOR VALUES FROM ('2013-01-01') TO ('2014-01-01');
+	
+CREATE TABLE Shipment2014 PARTITION OF Shipment_section
+    FOR VALUES FROM ('2014-01-01') TO ('2015-01-01');
+	
+CREATE TABLE Shipment2015 PARTITION OF Shipment_section
+    FOR VALUES FROM ('2015-01-01') TO ('2016-01-01');
+	
+CREATE TABLE Shipment2016 PARTITION OF Shipment_section
+    FOR VALUES FROM ('2016-01-01') TO ('2017-01-01');
+	
+CREATE TABLE Shipment2017 PARTITION OF Shipment_section
+    FOR VALUES FROM ('2017-01-01') TO ('2018-01-01');
+	
+CREATE TABLE Shipment2018 PARTITION OF Shipment_section
+    FOR VALUES FROM ('2018-01-01') TO ('2019-01-01');
+	
+CREATE TABLE Shipment2019 PARTITION OF Shipment_section
+    FOR VALUES FROM ('2019-01-01') TO ('2020-01-01');
+	
+CREATE TABLE Shipment2020 PARTITION OF Shipment_section
+    FOR VALUES FROM ('2020-01-01') TO ('2021-01-01');
+
+CREATE TABLE Shipment2021 PARTITION OF Shipment_section
+    FOR VALUES FROM ('2021-01-01') TO ('2022-01-01');
+	
+COPY Shipment_section (id_company, name_company, customer, products, date_shipment, cost)
+FROM 'shipment1.csv' WITH (FORMAT TEXT, DELIMITER '|');
+
+COPY Shipment_section (id_company, name_company, customer, products, date_shipment, cost)
+FROM 'shipment2.csv' WITH (FORMAT TEXT, DELIMITER '|');
+
+COPY Shipment_section (id_company, name_company, customer, products, date_shipment, cost)
+FROM 'shipment3.csv' WITH (FORMAT TEXT, DELIMITER '|');
+
+COPY Shipment_section (id_company, name_company, customer, products, date_shipment, cost)
+FROM 'shipment4.csv' WITH (FORMAT TEXT, DELIMITER '|');
+
+COPY Shipment_section (id_company, name_company, customer, products, date_shipment, cost)
+FROM 'shipment5.csv' WITH (FORMAT TEXT, DELIMITER '|');
+
+COPY Shipment_section (id_company, name_company, customer, products, date_shipment, cost)
+FROM 'shipment6.csv' WITH (FORMAT TEXT, DELIMITER '|');
+
+COPY Shipment_section (id_company, name_company, customer, products, date_shipment, cost)
+FROM 'shipment7.csv' WITH (FORMAT TEXT, DELIMITER '|');
+
+COPY Shipment_section (id_company, name_company, customer, products, date_shipment, cost)
+FROM 'shipment8.csv' WITH (FORMAT TEXT, DELIMITER '|');
+
+COPY Shipment_section (id_company, name_company, customer, products, date_shipment, cost)
+FROM 'shipment9.csv' WITH (FORMAT TEXT, DELIMITER '|');
+
+COPY Shipment_section (id_company, name_company, customer, products, date_shipment, cost)
+FROM 'shipment10.csv' WITH (FORMAT TEXT, DELIMITER '|');
+
+COPY Shipment_section (id_company, name_company, customer, products, date_shipment, cost)
+FROM 'shipment11.csv' WITH (FORMAT TEXT, DELIMITER '|');
+
+COPY Shipment_section (id_company, name_company, customer, products, date_shipment, cost)
+FROM 'shipment12.csv' WITH (FORMAT TEXT, DELIMITER '|');
+
+COPY Shipment_section (id_company, name_company, customer, products, date_shipment, cost)
+FROM 'shipment13.csv' WITH (FORMAT TEXT, DELIMITER '|');
+
+COPY Shipment_section (id_company, name_company, customer, products, date_shipment, cost)
+FROM 'shipment14.csv' WITH (FORMAT TEXT, DELIMITER '|');
+
+COPY Shipment_section (id_company, name_company, customer, products, date_shipment, cost)
+FROM 'shipment15.csv' WITH (FORMAT TEXT, DELIMITER '|');
+
+COPY Shipment_section (id_company, name_company, customer, products, date_shipment, cost)
+FROM 'shipment16.csv' WITH (FORMAT TEXT, DELIMITER '|');
+
+COPY Shipment_section (id_company, name_company, customer, products, date_shipment, cost)
+FROM 'shipment17.csv' WITH (FORMAT TEXT, DELIMITER '|');
+
+COPY Shipment_section (id_company, name_company, customer, products, date_shipment, cost)
+FROM 'shipment18.csv' WITH (FORMAT TEXT, DELIMITER '|');
+
+COPY Shipment_section (id_company, name_company, customer, products, date_shipment, cost)
+FROM 'shipment19.csv' WITH (FORMAT TEXT, DELIMITER '|');
+
+COPY Shipment_section (id_company, name_company, customer, products, date_shipment, cost)
+FROM 'shipment20.csv' WITH (FORMAT TEXT, DELIMITER '|');
+
+ANALYZE;
+
+CREATE INDEX ON Shipment_section (date_shipment);
+
+SET enable_partition_pruning = off;
+EXPLAIN ANALYZE
+SELECT * FROM Shipment_section
+WHERE date_shipment > '2021-01-01'::DATE;
+
+SET enable_partition_pruning = on;
+EXPLAIN ANALYZE
+SELECT * FROM Shipment_section
+WHERE date_shipment > '2021-01-01'::DATE;
