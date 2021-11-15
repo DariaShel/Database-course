@@ -19,7 +19,7 @@ CREATE INDEX index_price_company ON Company (delivered_goods);
 
 EXPLAIN ANALYZE
 SELECT * FROM Products
-WHERE to_tsvector('english', product_description) @@ to_tsquery('english', 'pants & type');
+WHERE to_tsvector('english', product_description) @@ to_tsquery('english', 'programming & functional');
 
 CREATE INDEX index_description_producs ON Products USING GIN (to_tsvector('english', product_description));
 
@@ -163,13 +163,6 @@ COPY Shipment_section (id_company, name_company, customer, products, date_shipme
 FROM 'shipment20.csv' WITH (FORMAT TEXT, DELIMITER '|');
 
 ANALYZE;
-
-CREATE INDEX ON Shipment_section (date_shipment);
-
-SET enable_partition_pruning = off;
-EXPLAIN ANALYZE
-SELECT * FROM Shipment_section
-WHERE date_shipment > '2021-01-01'::DATE;
 
 SET enable_partition_pruning = on;
 EXPLAIN ANALYZE
